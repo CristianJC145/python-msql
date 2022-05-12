@@ -6,7 +6,7 @@ from click import option
 from pick import pick
 from datetime import datetime
 from datetime import date
-
+import json
 
 
 host= str(input("Digite host: "))
@@ -24,7 +24,6 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 cursor.execute('SHOW DATABASES')
 db=cursor.fetchall()
-os.popen("cls")
 
 #os.popen("mysqldump -h localhost -u root testingdb > db.sql")
 
@@ -35,16 +34,39 @@ os.popen("cls")
 title = 'Bases de datos'
 options=db
 option, index = pick(options, title)
-print(option)
-print(index)
+option= "".join(map(str, option))
+#print(json.dumps(option))
 today = date.today()
 now = datetime.now()
 fecha= str(today)+str(now.hour)+str(now.minute)+str(now.second)
-ruta=input("¿donde desea guardar la copa de seguridad? ")
+os.system("cls")
+ruta=input("¿Ingrese ruta donde guardar la copia de seguridad? ")
 nombre = "db"
-baseDatos=db[index]
-nombre_sql = str(nombre+ruta+fecha+".sql")
-print (str(ruta))+"'db.sql"
-os.popen("mysqldump -h '"+str(host)+"' -u '" +str(user)+"' '" +str(baseDatos)+"' > '"+str(ruta)+"'db.sql")
+baseDatos=option
+nombre_sql = str(ruta+ "/"+fecha+".sql")
+os.popen("mysqldump -h "+str(host)+ " -u " +str(user)+ " "+option+" > "+str(nombre_sql)+"")
 
-#/C:/Users/Users/alexc/OneDrive/Escritorio (db-2022-04-05-9:42.sql)
+print("Se ha guardado la base de datos")
+
+#Restaurar
+
+restaurar= int(input("""¿Restaurar?
+1. SI
+2. NO
+"""))
+if restaurar == 1:
+    os.system("cls")
+    title = 'Seleccione base de datos para la restauracion'
+    options=db
+    option, index = pick(options, title)
+    option= "".join(map(str, option))
+    nombrebd=input("Ingrese nombre de la base de datos de respaldo: ")
+    ruta=input("Ingrese ruta de la base de datos: ")
+    nombre_sql=str(ruta)+str("/"+nombrebd)
+    os.popen("mysql -u " +str(user)+ " "+option+" < "+str(nombre_sql)+"")
+
+#os.popen("mysql -u root recuperaciondb < /Users/alexc/OneDrive/Escritorio/2022-05-11153857.sql")
+
+#/C:/Users/Users/alexc/OneDrive/Escritorio (db-2022-04-05-942.sql)
+
+#mysqldump -h localhost -u root test > /Users/alexc/OneDrive/Escritorio/db-2022-04-05-942.sql
